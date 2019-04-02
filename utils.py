@@ -60,15 +60,17 @@ def read_pssm(file_path, dir=None):
     # Returns a list of dictionaries, where each dict is a row of the matrix
     return pssm
 
-#prior - probability of class label
-#dists - list of means and standard deviations
+
+# prior - probability of class label
+# dists - list of means and standard deviations
 def read_dist(file_path, dir=None):
     if dir:
         file_path = os.path.join(dir, file_path)
-    with open(file+path, 'r') as f:
+    with open(file_path, 'r') as f:
         prior = float(f.readline())
         dists = [[float(x) for x in line] for line in f]
     return prior, dists
+
 
 # divide the .pssm files into training and testing sets
 def split_files(pssm_list, rr_list):

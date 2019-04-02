@@ -1,4 +1,4 @@
-#functions used to train and create the model
+# functions used to train and create the model
 import utils
 import os
 
@@ -8,6 +8,7 @@ acids_list = ['A', 'C', 'E', 'D', 'G', 'I', 'H', 'K', 'F', 'M', 'L', 'N', 'Q', '
 # Get the parent directory of this code
 this_script = os.path.abspath(__file__)
 parent_directory = os.path.dirname(this_script)
+
 
 def build_feature_matrix(pssm_files, pssm_dir, rr_dir):
     """
@@ -36,4 +37,3 @@ def build_feature_matrix(pssm_files, pssm_dir, rr_dir):
                     feature[((row_offset + 2) * 20) + val_num] = values[acid]
             feature_matrix.append(feature)
     return feature_matrix
-
