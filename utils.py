@@ -71,18 +71,18 @@ def read_dist(file_path, dir=None):
     return prior, dists
 
 # divide the .pssm files into training and testing sets
-def split_files(pssm_list, ss_list):
-    test_correct_pssm_files(pssm_list, ss_list)
+def split_files(pssm_list, rr_list):
+    test_correct_pssm_files(pssm_list, rr_list)
     pssm_train = sample(pssm_list, int(0.75 * len(pssm_list)))
     pssm_test = [pssm_name for pssm_name in pssm_list if pssm_name not in pssm_train]
     return pssm_train, pssm_test
 
 
-# make sure each .pssm has a corresponding .ss
-def test_correct_pssm_files(pssm_list, ss_list):
+# make sure each .pssm has a corresponding .rr
+def test_correct_pssm_files(pssm_list, rr_list):
         for pssm_name in pssm_list:
-            if pssm_name.replace('.pssm', '.ss') not in ss_list:
-                raise Exception('PSSM files don\'t match up with .ss files: {}'.format(pssm_name))
+            if pssm_name.replace('.pssm', '.rr') not in rr_list:
+                raise Exception('PSSM files don\'t match up with .rr files: {}'.format(pssm_name))
 
 
 err_msg = '''
@@ -90,7 +90,7 @@ Please enter two directory names (absolute paths)
 containing sequences for Naive Bayes training data
 (with double quotes around them if they have spaces).
 The directory with PSSM files should come first, 
-followed by the path to the .ss files.'''
+followed by the path to the .rr files.'''
 
 
 def parse_args():
@@ -99,14 +99,14 @@ def parse_args():
         sys.exit()
 
     try:
-        # Get the lists of pssm and ss file names
+        # Get the lists of pssm and rr file names
         pssm = read_directory_contents(sys.argv[1], '.pssm')
-        ss = read_directory_contents(sys.argv[2], '.ss')
-        pssm_classify = read_pssm(sys.argv[3])
+        rr = read_directory_contents(sys.argv[2], '.rr')
+        pssm_clarrify = read_pssm(sys.argv[3])
     except:
         # Given paths are not valid directories
         print(err_msg)
         sys.exit()
 
-    # Return list of pssm & ss files, and their parent directories
-    return pssm, ss, sys.argv[1], sys.argv[2], pssm_classify
+    # Return list of pssm & rr files, and their parent directories
+    return pssm, rr, sys.argv[1], sys.argv[2], pssm_clarrify
