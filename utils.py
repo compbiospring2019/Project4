@@ -61,6 +61,44 @@ def read_pssm(file_path, dir=None):
     return pssm
 
 
+def read_rr(file_path, dir=None):
+    if dir:
+        file_path = os.path.join(dir, file_path)
+    rr = {}
+    with open(file_path, 'r') as f:
+        # Read in the sequence from the top of the .rr file
+        sequence = ''
+        line = f.readline().strip()
+        while '' not in line:
+            sequence += line
+            line = f.readline().strip()
+
+        rr['sequence'] = sequence
+
+        # Add each line to the dictionary
+        for line in f:
+            if line in ['', '\n']:
+                break
+            rr.update(parse_rr_line(line))
+
+    # Returns a dictionary with tuples as keys, and intra residue distance as value
+    return rr
+
+
+def parse_rr_line(rr_line):
+    """
+    Splits a line of the .rr file into i, j, and distance,
+    and returns a dictionary with key = (i, j) and value = distance
+    """
+    rr_line = rr_line.strip()
+    rr_parts = rr_line.split()
+    i = int(rr_parts[0])
+    j = int(rr_parts[1])
+    distance = float(rr_parts[4])
+    rr_dict = {(i, j): distance}
+    return rr_dict
+
+
 # prior - probability of class label
 # dists - list of means and standard deviations
 def read_dist(file_path, dir=None):
