@@ -116,7 +116,7 @@ def calc_gradient(w_vector, matrix):
         p_hat = 1.0 / (1 + exp(sum_of_w))
 
         # For each feature, calculate the gradient
-        for i in w_vector:
+        for i in range(1, len(w_vector)):
             gradient_vector[i] += training_example[i-1] * (training_example['class'] - p_hat)
 
     return gradient_vector
