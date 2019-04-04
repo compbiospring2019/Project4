@@ -120,9 +120,9 @@ def split_files(pssm_list, rr_list):
 
 # make sure each .pssm has a corresponding .rr
 def test_correct_pssm_files(pssm_list, rr_list):
-        for pssm_name in pssm_list:
-            if pssm_name.replace('.pssm', '.rr') not in rr_list:
-                raise Exception('PSSM files don\'t match up with .rr files: {}'.format(pssm_name))
+    for pssm_name in pssm_list:
+        if pssm_name.replace('.pssm', '.rr') not in rr_list:
+            raise Exception('PSSM files don\'t match up with .rr files: {}'.format(pssm_name))
 
 
 err_msg = '''
