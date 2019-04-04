@@ -128,8 +128,8 @@ def calc_gradient(w_vector, matrix):
 
 def update_w(w_vector, gradient_vector):
     """
-    TODO
-    :return:
+    Updates each w value in the w_vector
+    :return: w_vector
     """
     for index in range(len(w_vector)):
         w_vector[index] += STEP_SIZE * gradient_vector[index]
