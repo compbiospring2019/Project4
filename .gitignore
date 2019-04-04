@@ -111,3 +111,6 @@ venv.bak/
 
 # Ignore project files
 5970_6970_SP_19_PROJECT_4
+
+# Ignore models
+*.json

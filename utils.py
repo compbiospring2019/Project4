@@ -2,6 +2,7 @@
 import os
 from random import sample
 import sys
+import json
 
 # Get the parent directory of this code
 this_script = os.path.abspath(__file__)
@@ -150,3 +151,27 @@ def parse_args():
 
     # Return list of pssm & rr files, and their parent directories
     return pssm, rr, sys.argv[1], sys.argv[2], pssm_clarrify
+
+
+def write_model(model, file_name='model.json', dir=parent_directory):
+    """
+    Write JSON object to a file
+    :return: None
+    """
+    if dir:
+        file_name = os.path.join(dir, file_name)
+    with open(file_name, 'w') as outfile:
+        json.dump(model, outfile)
+
+
+def read_model(file_name='model.json', dir=parent_directory):
+    """
+    Reads in the JSON object from model.json
+    :return: Loaded contents of model file
+    """
+    if dir:
+        file_name = os.path.join(dir, file_name)
+    with open(file_name, 'r') as file:
+        model = json.load(file)
+
+    return model
