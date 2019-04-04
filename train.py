@@ -14,6 +14,7 @@ parent_directory = os.path.dirname(this_script)
 
 # Global variables
 SAMPLE_SIZE = 5
+STEP_SIZE = 0.001
 
 
 def main():
@@ -115,6 +116,9 @@ def calc_gradient(w_vector, matrix):
             sum_of_w += w_vector[i] * training_example[i-1]
         p_hat = 1.0 / (1 + exp(sum_of_w))
 
+        # Deal with w0
+        gradient_vector[0] += training_example['class'] - p_hat
+
         # For each feature, calculate the gradient
         for i in range(1, len(w_vector)):
             gradient_vector[i] += training_example[i-1] * (training_example['class'] - p_hat)
@@ -127,7 +131,9 @@ def update_w(w_vector, gradient_vector):
     TODO
     :return:
     """
-    pass
+    for index in range(len(w_vector)):
+        w_vector[index] += STEP_SIZE * gradient_vector[index]
+    return w_vector
 
 
 def reached_top(w_vector, gradient_vector):
