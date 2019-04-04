@@ -1,7 +1,6 @@
 # Utils for Project 4
 import os
 from random import sample
-import sys
 import json
 
 # Get the parent directory of this code
@@ -74,7 +73,7 @@ def read_rr(file_path, dir=None):
             sequence += line
             line = f.readline().strip()
 
-        rr['sequence'] = sequence
+        # rr['sequence'] = sequence
 
         # Add each line to the dictionary
         for line in f:
@@ -96,7 +95,7 @@ def parse_rr_line(rr_line):
     i = int(rr_parts[0])
     j = int(rr_parts[1])
     distance = float(rr_parts[4])
-    rr_dict = {(i, j): distance}
+    rr_dict = {(i-1, j-1): distance}
     return rr_dict
 
 
@@ -124,33 +123,6 @@ def test_correct_pssm_files(pssm_list, rr_list):
     for pssm_name in pssm_list:
         if pssm_name.replace('.pssm', '.rr') not in rr_list:
             raise Exception('PSSM files don\'t match up with .rr files: {}'.format(pssm_name))
-
-
-err_msg = '''
-Please enter two directory names (absolute paths)
-containing sequences for Naive Bayes training data
-(with double quotes around them if they have spaces).
-The directory with PSSM files should come first, 
-followed by the path to the .rr files.'''
-
-
-def parse_args():
-    if len(sys.argv) < 4:
-        print(err_msg)
-        sys.exit()
-
-    try:
-        # Get the lists of pssm and rr file names
-        pssm = read_directory_contents(sys.argv[1], '.pssm')
-        rr = read_directory_contents(sys.argv[2], '.rr')
-        pssm_clarrify = read_pssm(sys.argv[3])
-    except:
-        # Given paths are not valid directories
-        print(err_msg)
-        sys.exit()
-
-    # Return list of pssm & rr files, and their parent directories
-    return pssm, rr, sys.argv[1], sys.argv[2], pssm_clarrify
 
 
 def write_model(model, file_name='model.json', dir=parent_directory):
