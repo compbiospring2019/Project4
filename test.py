@@ -13,13 +13,16 @@ this_script = os.path.abspath(__file__)
 parent_directory = os.path.dirname(this_script)
 
 # Set the directory for testing output
-rr_output_directory = this_script + "/testing-rr-output"
+rr_output_directory = parent_directory + "/testing-rr-output"
+
+def main(pssm_files, pssm_dir, rr_dir):
+    test(pssm_files, pssm_dir, rr_dir)
 
 def test(pssm_files, pssm_dir, rr_dir):
     """
     Test the model. Generate contact probabilities and save them in .rr format sorted in descending order.
     """
-    model = utils.load_model()
+    model = utils.read_model()
     rr_rows = []
     # create directory for .rr files created by testing
     try:
@@ -37,23 +40,25 @@ def test(pssm_files, pssm_dir, rr_dir):
         for pair in range(len(test_matrix)):
             contact_probability = calculate_contact_probability(model, test_matrix[pair])
             # create row
-            rr_row = [pair[0], pair[1], 0, 8, contact_probability]
+            i, j = list(test_matrix[pair].keys())[0][0], list(test_matrix[pair].keys())[0][1]
+            rr_row = [i, j, 0, 8, contact_probability]
             # rr_rows.append(" ".join([str(x) for x in rr_row]))
             rr_rows.append(rr_row)
         # sort rows
-        rows.sort(key = lambda row: row[4], reverse = True)
+        rr_rows.sort(key = lambda row: row[4], reverse = True)
         # write to file
         file_name = os.path.join(rr_output_directory, pssm_file.replace('.pssm', '.rr'))
         with open(file_name, 'w') as file:
             # stringify all rows and put in file
             for row in rr_rows:
-                file.write(" ".join([str(x) for x in row]))
+                file.write(" ".join([str(x) for x in row]) + "\n")
 
 def calculate_contact_probability(model, pair):
     """
     :return: the probability that the given pair is in contact
     """
-    n = exp(model[0] + sum([model[i + 1] * pair[i] for i in range(200)]))
+    feature_values = list(pair.values())[0]
+    n = exp(model[0] + sum([model[i + 1] * feature_values[i] for i in range(200)]))
     return n / (1 + n)
 
 def build_test_matrix(pssm_file, pssm_dir):
@@ -85,3 +90,5 @@ def get_five(pssm, i):
             values.extend([pssm[i + row_offset][k] for k in acids_list])
     return values
 
+if __name__ == "__main()__":
+    main()

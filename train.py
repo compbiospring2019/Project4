@@ -4,6 +4,7 @@ import os
 from random import sample
 import sys
 from math import exp, log
+import test
 
 empty_row = {'A': -1, 'C': -1, 'E': -1, 'D': -1, 'G': -1, 'I': -1, 'H': -1, 'K': -1, 'F': -1, 'M': -1, 'L': -1, 'N': -1, 'Q': -1, 'P': -1, 'S': -1, 'R': -1, 'T': -1, 'W': -1, 'V': -1, 'Y': -1}
 acids_list = ['A', 'C', 'E', 'D', 'G', 'I', 'H', 'K', 'F', 'M', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'W', 'V', 'Y']
@@ -23,6 +24,7 @@ def main():
     pssm_train = sample(pssm_list, int(0.75 * len(pssm_list)))
     pssm_test = [pssm for pssm in pssm_list if pssm not in pssm_train]
     train(pssm_train, pssm_dir, rr_dir)
+    test.main(pssm_test, pssm_dir, rr_dir)
 
 
 def build_feature_matrix(pssm_files, pssm_dir, rr_dir):
