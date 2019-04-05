@@ -3,7 +3,7 @@ import utils
 import os
 from random import sample
 import sys
-from math import exp
+from math import exp, log
 
 empty_row = {'A': -1, 'C': -1, 'E': -1, 'D': -1, 'G': -1, 'I': -1, 'H': -1, 'K': -1, 'F': -1, 'M': -1, 'L': -1, 'N': -1, 'Q': -1, 'P': -1, 'S': -1, 'R': -1, 'T': -1, 'W': -1, 'V': -1, 'Y': -1}
 acids_list = ['A', 'C', 'E', 'D', 'G', 'I', 'H', 'K', 'F', 'M', 'L', 'N', 'Q', 'P', 'S', 'R', 'T', 'W', 'V', 'Y']
@@ -13,12 +13,16 @@ this_script = os.path.abspath(__file__)
 parent_directory = os.path.dirname(this_script)
 
 # Global variables
-SAMPLE_SIZE = 5
+SAMPLE_SIZE = 10
 STEP_SIZE = 0.001
 
 
 def main():
-    train()
+    # Read in PSSM/RR files
+    pssm_list, rr_list, pssm_dir, rr_dir = parse_args()
+    pssm_train = sample(pssm_list, int(0.75 * len(pssm_list)))
+    pssm_test = [pssm for pssm in pssm_list if pssm not in pssm_train]
+    train(pssm_train, pssm_dir, rr_dir)
 
 
 def build_feature_matrix(pssm_files, pssm_dir, rr_dir):
@@ -37,7 +41,7 @@ def build_feature_matrix(pssm_files, pssm_dir, rr_dir):
 
         # Get a random sample of (i, j) pairs to balance data
         pairs = [(i, j) for i in range(len(intermediate_matrix)) for j in range(i+5, len(intermediate_matrix)) if (i, j) not in rr]
-        pairs = sample(pairs, len(intermediate_matrix))
+        pairs = sample(pairs, len(rr))
 
         def build_row(class_label):
             # Build row for feature matrix:
@@ -81,12 +85,11 @@ def build_small_matrix(pssm):
     return small_matrix
 
 
-def train():
+def train(pssm_list, pssm_dir, rr_dir):
     """
     Train the model using gradient ascent. Save the model.
     """
     # Build feature matrix
-    pssm_list, rr_list, pssm_dir, rr_dir = parse_args()
     feature_matrix = build_feature_matrix(pssm_list, pssm_dir, rr_dir)
 
     w_vector = new_w_vector()
@@ -111,10 +114,7 @@ def calc_gradient(w_vector, matrix):
 
     for training_example in training_data:
         # Calculate P(Y=1|X,w)
-        sum_of_w = w_vector[0]
-        for i in range(1, len(w_vector)):
-            sum_of_w += w_vector[i] * training_example[i-1]
-        p_hat = 1.0 / (1 + exp(sum_of_w))
+        p_hat = 1.0 / (1 + exp(calc_sum(w_vector, training_example)))
 
         # Deal with w0
         gradient_vector[0] += training_example['class'] - p_hat
@@ -143,7 +143,21 @@ def reached_top(w_vector, gradient_vector):
     """
     if not gradient_vector:
         return False
+    #print(max_likelihood)
+    print(w_vector)
+    #if abs(max_likelihood['new'] - max_likelihood['old']) < 0.0005:
+     #   return True
     return True
+
+
+def calc_max_conditional_likelihood(w_vector, feature_matrix):
+    sum_mcl = 0.0
+
+    for feature in feature_matrix:
+        feature_sum = calc_sum(w_vector, feature)
+        sum_mcl += feature['class'] * feature_sum - log(1 + exp(feature_sum))
+
+    return sum_mcl
 
 
 def new_w_vector():
@@ -153,6 +167,17 @@ def new_w_vector():
     :return: list of length 201
     """
     return [1] * 201
+
+
+def calc_sum(w_vector, feature_vector):
+    """
+    Calculates the sum w0 + SUM(wi * xi)
+    """
+    sum_of_w = w_vector[0]
+    for i in range(1, len(w_vector)):
+        sum_of_w += w_vector[i] * feature_vector[i - 1]
+
+    return sum_of_w
 
 
 err_msg = '''
