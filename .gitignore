@@ -114,3 +114,4 @@ venv.bak/
 
 # Ignore models
 *.json
+testing-rr-outputs
