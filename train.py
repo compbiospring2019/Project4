@@ -145,10 +145,10 @@ def reached_top(w_vector, gradient_vector):
     """
     if not gradient_vector:
         return False
-    #print(max_likelihood)
-    print(w_vector)
-    #if abs(max_likelihood['new'] - max_likelihood['old']) < 0.0005:
-     #   return True
+    for i in range(len(gradient_vector)):
+        if gradient_vector[i] > 0.05:
+            return False
+    print('Reached the top!')
     return True
 
 
