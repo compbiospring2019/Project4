@@ -73,8 +73,7 @@ def read_rr(file_path, dir=None):
             sequence += line
             line = f.readline().strip()
 
-        # rr['sequence'] = sequence
-
+        rr['sequence'] = line
         # Add each line to the dictionary
         for line in f:
             if line in ['', '\n']:

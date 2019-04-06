@@ -17,6 +17,7 @@ rr_output_directory = parent_directory + "/testing-rr-output"
 
 def main(pssm_files, pssm_dir, rr_dir):
     test(pssm_files, pssm_dir, rr_dir)
+    accuracy(rr_dir)
 
 def test(pssm_files, pssm_dir, rr_dir):
     """
@@ -24,6 +25,7 @@ def test(pssm_files, pssm_dir, rr_dir):
     """
     model = utils.read_model()
     rr_rows = []
+
     # create directory for .rr files created by testing
     try:
         os.mkdir(rr_output_directory)
@@ -32,11 +34,14 @@ def test(pssm_files, pssm_dir, rr_dir):
         old_rr_files = utils.read_directory_contents(rr_output_directory, '.rr')
         for old_rr_file in old_rr_files:
             os.remove(os.path.join(rr_output_directory, old_rr_file))
+
+    # test
+    print("Testing...")
     for pssm_file in pssm_files:
         # get the feature values of every pair
         test_matrix = build_test_matrix(pssm_file, pssm_dir)
         # get the sequence associated with this pssm
-        rr = utils.read_rr(pssm_file.replace('.pssm', '.rr'), rr_dir)
+        sequence = utils.read_rr(pssm_file.replace('.pssm', '.rr'), rr_dir)['sequence']
         for pair in range(len(test_matrix)):
             contact_probability = calculate_contact_probability(model, test_matrix[pair])
             # create row
@@ -44,14 +49,79 @@ def test(pssm_files, pssm_dir, rr_dir):
             rr_row = [i, j, 0, 8, contact_probability]
             # rr_rows.append(" ".join([str(x) for x in rr_row]))
             rr_rows.append(rr_row)
+
         # sort rows
         rr_rows.sort(key = lambda row: row[4], reverse = True)
+
         # write to file
         file_name = os.path.join(rr_output_directory, pssm_file.replace('.pssm', '.rr'))
         with open(file_name, 'w') as file:
+            file.write(sequence + "\n")
             # stringify all rows and put in file
             for row in rr_rows:
                 file.write(" ".join([str(x) for x in row]) + "\n")
+
+def accuracy(rr_dir):
+    """
+    Determine the average accuracy of the L/10, L/5, and L/2 most probable contact predictions.
+    """
+    # get the .rr files created in testing (predictions)
+    rr_outputs = utils.read_directory_contents(rr_output_directory, '.rr')
+
+    # determine the accuracy of each individual .rr file
+    num_files = 0
+    for rr_output in rr_outputs:
+        num_files += 1
+        # create a list of the predictions
+        predictions = utils.read_rr(rr_output, rr_output_directory)
+        predictions_list = listify_rr(predictions).sort(key = lambda row: row[4], reverse = True)
+        # create a list of the actual contact pairs
+        contact_pairs = utils.read_rr(rr_output, rr_dir)
+        contact_pairs_list = listify_rr(contact_pairs)
+
+        # metrics
+        l10_denom, l10_num, l5_denom, l5_num, l2_denom, l2_num = 0, 0, 0, 0, 0, 0
+
+        L = len(contact_pairs['sequence'])
+        for i in range(L / 2):
+            # make prediction
+            predicted_contact = predictions_list[i][4] > 0.5
+            if predicted_contact:
+                correct = (predictions_list[i][0], predictions_list[i][1]) in contact_pairs
+            else:
+                correct = (predictions_list[i][0], predictions_list[i][1]) not in contact_pairs
+
+            # update metrics
+            if i <= L / 10:
+                l10_denom += 1
+                if correct:
+                    l10_num += 1
+            if i <= L / 5:
+                l5_denom += 1
+                if correct:
+                    l5_num += 1
+            l2_denom += 1
+            if correct:
+                l2_num += 1
+
+        # aggregate
+        l10_acc = l10_num / l10_denom
+        l5_acc = l5_num / l5_denom
+        l2_acc = l2_num / l2_denom
+
+    # average
+    l10_acc /= num_files
+    l5_acc /= num_files
+    l2_acc /= num_files
+    print("Accuracy")
+    print("--------")
+    print("L10: " + str(l10_acc))
+    print("L5: " + str(l5_acc))
+    print("L2: " + str(l2_acc))
+
+def listify_rr(rr):
+    pair_keys = [key for key in rr.keys() if key != 'sequence']
+    return [[pair[0], pair[1], 0, 8, rr[pair][4]] for pair in pair_keys]
 
 def calculate_contact_probability(model, pair):
     """

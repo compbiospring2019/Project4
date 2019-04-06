@@ -57,7 +57,8 @@ def build_feature_matrix(pssm_files, pssm_dir, rr_dir):
         # For each i, j pair, make a row for the feature matrix
         for i, j in pairs:
             feature_matrix.append(build_row(0))
-        for i, j in rr.keys():
+        pair_keys = [key for key in rr.keys() if key != 'sequence']
+        for i, j in pair_keys:
             feature_matrix.append(build_row(1))
     return feature_matrix
 
