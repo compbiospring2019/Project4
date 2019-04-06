@@ -74,7 +74,8 @@ def accuracy(rr_dir):
         num_files += 1
         # create a list of the predictions
         predictions = utils.read_rr(rr_output, rr_output_directory)
-        predictions_list = listify_rr(predictions).sort(key = lambda row: row[4], reverse = True)
+        predictions_list = listify_rr(predictions)
+        predictions_list.sort(key = lambda row: row[2], reverse = True)
         # create a list of the actual contact pairs
         contact_pairs = utils.read_rr(rr_output, rr_dir)
         contact_pairs_list = listify_rr(contact_pairs)
@@ -83,9 +84,9 @@ def accuracy(rr_dir):
         l10_denom, l10_num, l5_denom, l5_num, l2_denom, l2_num = 0, 0, 0, 0, 0, 0
 
         L = len(contact_pairs['sequence'])
-        for i in range(L / 2):
+        for i in range(int(L / 2)):
             # make prediction
-            predicted_contact = predictions_list[i][4] > 0.5
+            predicted_contact = predictions_list[i][2] > 0.5
             if predicted_contact:
                 correct = (predictions_list[i][0], predictions_list[i][1]) in contact_pairs
             else:
@@ -121,7 +122,7 @@ def accuracy(rr_dir):
 
 def listify_rr(rr):
     pair_keys = [key for key in rr.keys() if key != 'sequence']
-    return [[pair[0], pair[1], 0, 8, rr[pair][4]] for pair in pair_keys]
+    return [[pair[0], pair[1], rr[pair]] for pair in pair_keys]
 
 def calculate_contact_probability(model, pair):
     """
