@@ -65,6 +65,9 @@ def accuracy(rr_dir):
     """
     Determine the average accuracy of the L/10, L/5, and L/2 most probable contact predictions.
     """
+    # metrics
+    l10_acc, l5_acc, l2_acc = 0, 0, 0
+
     # get the .rr files created in testing (predictions)
     rr_outputs = utils.read_directory_contents(rr_output_directory, '.rr')
 
@@ -106,9 +109,9 @@ def accuracy(rr_dir):
                 l2_num += 1
 
         # aggregate
-        l10_acc = l10_num / l10_denom
-        l5_acc = l5_num / l5_denom
-        l2_acc = l2_num / l2_denom
+        l10_acc += l10_num / l10_denom
+        l5_acc += l5_num / l5_denom
+        l2_acc += l2_num / l2_denom
 
     # average
     l10_acc /= num_files
