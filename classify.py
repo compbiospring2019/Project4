@@ -36,13 +36,13 @@ def classify(pssm_files, pssm_dir, rr_dir):
             os.remove(os.path.join(rr_output_directory, old_rr_file))
     for pssm_file in pssm_files:
         # get the feature values of every pair
-        test_matrix = build_classifier_matrix(pssm_file, pssm_dir)
+        classifier_matrix = build_classifier_matrix(pssm_file, pssm_dir)
         # get the sequence associated with this pssm
         rr = utils.read_rr(pssm_file.replace('.pssm', '.rr'), rr_dir)
-        for pair in range(len(test_matrix)):
-            contact_probability = calculate_contact_probability(model, test_matrix[pair])
+        for pair in range(len(classifier_matrix)):
+            contact_probability = calculate_contact_probability(model, classifier_matrix[pair])
             # create row
-            i, j = list(test_matrix[pair].keys())[0][0], list(test_matrix[pair].keys())[0][1]
+            i, j = list(classifier_matrix[pair].keys())[0][0], list(classifier_matrix[pair].keys())[0][1]
             rr_row = [i, j, 0, 8, contact_probability]
             # rr_rows.append(" ".join([str(x) for x in rr_row]))
             rr_rows.append(rr_row)
@@ -68,15 +68,15 @@ def build_classifier_matrix(pssm_file, pssm_dir):
     :return: a list of dictionaries with key = (i, j) and value = a list of feature values
     """
     pssm = utils.read_pssm(pssm_file, pssm_dir)
-    test_matrix = []
+    classifier_matrix = []
     for i in range(len(pssm)):
         for j in range(i + 5, len(pssm)):
             feature = {}
             row = get_five(pssm, i)
             row.extend(get_five(pssm, j))
             feature[(i, j)] = row
-            test_matrix.append(feature)
-    return test_matrix
+            classifier_matrix.append(feature)
+    return classifier_matrix
 
 def get_five(pssm, i):
     """
