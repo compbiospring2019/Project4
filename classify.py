@@ -17,11 +17,13 @@ rr_output_directory = parent_directory + "/classified-rr-output"
 
 def main(pssm_files, pssm_dir, rr_dir):
     classify(pssm_files, pssm_dir, rr_dir)
+    print("Done classifying. classified rr output is available in the following directory: " + rr_output_directory)
 
 def classify(pssm_files, pssm_dir, rr_dir):
     """
     Test the model. Generate contact probabilities and save them in .rr format sorted in descending order.
     """
+    print("classifying...")
     model = utils.read_model()
     rr_rows = []
     # create directory for .rr files created by classification
