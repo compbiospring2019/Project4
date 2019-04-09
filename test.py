@@ -66,7 +66,7 @@ def accuracy(rr_dir):
     Determine the average accuracy of the L/10, L/5, and L/2 most probable contact predictions.
     """
     # metrics
-    l10_acc, l5_acc, l2_acc = 0, 0, 0
+    l10_acc, l5_acc, l2_acc = 0.0, 0.0, 0.0
 
     # get the .rr files created in testing (predictions)
     rr_outputs = utils.read_directory_contents(rr_output_directory, '.rr')
@@ -90,28 +90,29 @@ def accuracy(rr_dir):
         for i in range(int(L / 2)):
             # make prediction
             predicted_contact = predictions_list[i][2] > 0.5
-            if predicted_contact:
-                correct = (predictions_list[i][0], predictions_list[i][1]) in contact_pairs
-            else:
-                correct = (predictions_list[i][0], predictions_list[i][1]) not in contact_pairs
+            actual_contact = (predictions_list[i][0], predictions_list[i][1]) in contact_pairs
 
             # update metrics
-            if i <= L / 10:
+            if i <= L / 10 and actual_contact:
                 l10_denom += 1
-                if correct:
+                if predicted_contact:
                     l10_num += 1
-            if i <= L / 5:
+            if i <= L / 5 and actual_contact:
                 l5_denom += 1
-                if correct:
+                if predicted_contact:
                     l5_num += 1
-            l2_denom += 1
-            if correct:
-                l2_num += 1
+            if actual_contact:
+                l2_denom += 1
+                if predicted_contact:
+                    l2_num += 1
 
         # aggregate
-        l10_acc += l10_num / l10_denom
-        l5_acc += l5_num / l5_denom
-        l2_acc += l2_num / l2_denom
+        if l10_denom != 0:
+            l10_acc += l10_num / l10_denom
+        if l5_denom != 0:
+            l5_acc += l5_num / l5_denom
+        if l2_denom != 0:
+            l2_acc += l2_num / l2_denom
 
     # average
     l10_acc /= num_files
